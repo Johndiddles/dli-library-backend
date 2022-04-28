@@ -1,0 +1,9 @@
+POST http://localhost:1337/api/v1/modules/add
+Content-Type: application/json
+
+{
+    "courseCode": "ACC223",
+    "courseTitle": "Advanced Accounting",
+    "level": "200",
+    "url": "https://google.com"
+}
