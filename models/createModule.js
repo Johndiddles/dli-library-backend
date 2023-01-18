@@ -18,12 +18,16 @@ const moduleTemplate = new mongoose.Schema({
     required: true,
   },
   department: {
-    type: "String",
+    type: String,
     required: true,
   },
   date: {
     type: Date,
     default: Date.now(),
+  },
+  thumbnail: {
+    type: "Object",
+    required: true,
   },
 });
 

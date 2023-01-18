@@ -8,7 +8,7 @@ const authenticate = (req, res, next) => {
     req.user = decode;
     next();
   } catch (error) {
-    res.status(403).json({
+    res.status(401).json({
       data: {
         status: "rejected",
         message: "access denied",

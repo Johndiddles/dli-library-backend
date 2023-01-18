@@ -5,19 +5,54 @@ const router = express.Router();
 const moduleTemplateCopy = require("./models/createModule");
 const storeModuleTemplateCopy = require("./models/storeModule");
 const users = require("./models/userModule");
+const fs = require("fs");
+const fileupload = require("express-fileupload");
+const crypto = require("crypto");
+const bodyParser = require("body-parser");
+
+const multer = require("multer");
+const { GridFsStorage } = require("multer-gridfs-storage");
+const Grid = require("gridfs-stream");
+const methodOverride = require("method-override");
 
 const authenticate = require("./middlewares/authentication");
 
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+// const getThumbnail = require("./helpers/getThumbnail");
+const { PDFNet } = require("@pdftron/pdfnet-node");
+const path = require("path");
+const connectDB = require("./index");
+
+bodyParser.json();
+
+router.use(methodOverride("_method"));
 
 // fetch all modules
 router.get("/modules", (req, res) => {
   moduleTemplateCopy
     .find()
     .then((response) => {
-      console.log(response);
-      res.status(201).json(response);
+      // console.log(response);
+      res
+        .status(201)
+        .json(response?.sort((a, b) => Number(b?.date) - Number(a?.date)));
+    })
+    .catch((error) => console.log(error));
+});
+
+router.get("/modules/recent", (req, res) => {
+  moduleTemplateCopy
+    .find()
+    .then((response) => {
+      // console.log(response);
+      res
+        .status(201)
+        .json(
+          response
+            ?.sort((a, b) => Number(b?.date) - Number(a?.date))
+            ?.slice(0, 3)
+        );
     })
     .catch((error) => console.log(error));
 });
@@ -33,8 +68,103 @@ router.get("/modules/:id", (req, res) => {
 });
 
 // add a single module
-router.post("/modules/add", authenticate, (req, res) => {
-  users.findOne({ email: req.user.email }).then((user) => {
+const storage = new GridFsStorage({
+  url: process.env.DATABASE_ACCESS,
+  file: (req, file) => {
+    console.log({ file });
+    return new Promise((resolve, reject) => {
+      crypto.randomBytes(16, (err, buf) => {
+        if (err) {
+          return reject(err);
+        }
+        const id = buf.toString("hex");
+        const filename = `module-${id}${path.extname(file.originalname)}`;
+        const fileInfo = {
+          id,
+          filename: filename,
+          bucketName: "modules",
+        };
+
+        console.log({ fileInfo });
+        resolve(fileInfo);
+      });
+    });
+  },
+});
+//initialize upload with multer
+const upload = multer({ storage });
+
+router.post(
+  "/modules/createThumbnail",
+  authenticate,
+  fileupload({ createParentPath: true }),
+  (req, res) => {
+    console.log(req.files);
+    users.findOne({ email: req.user.email }).then(async (user) => {
+      if (!user || user?.role !== process.env.ADMIN_KEY) {
+        res.status(403).json({
+          data: {
+            status: "failed",
+            message: "access denied",
+          },
+        });
+      } else {
+        // let inputFile = req.files.module?.data;
+        let inputFile = req.files?.module?.data;
+
+        let outputFilePath = path.resolve(
+          __dirname,
+          `./files/${req.body?.courseCode}.png`
+        );
+
+        const getThumbnail = async () => {
+          const doc = await PDFNet.PDFDoc.createFromBuffer(inputFile);
+          await doc.initSecurityHandler();
+          const pdfDraw = await PDFNet.PDFDraw.create(92);
+          const currPage = await doc.getPage(1);
+          await pdfDraw.export(currPage, outputFilePath, "PNG");
+
+          //   return outputFile;
+        };
+
+        let fileThumbnail;
+
+        await PDFNet.runWithCleanup(getThumbnail)
+          .then(() => {
+            fs.readFile(outputFilePath, (err, data) => {
+              if (err) {
+                res.status(500).json({
+                  message: "an error occured while generating thumbnail",
+                  error: err,
+                });
+              } else {
+                fileThumbnail = data;
+                res.setHeader("ContentType", "image/png").status(201).json({
+                  message: "successfully generated thumbnail",
+                  data: data,
+                });
+
+                fs.unlink(outputFilePath, () => {
+                  console.log("file removed successfully");
+                });
+              }
+            });
+          })
+          .catch((error) => {
+            console.log({ error });
+            res
+              .status(500)
+              .json({ message: "an error occured while generating thumbnail" });
+          });
+
+        console.log({ fileThumbnail });
+      }
+    });
+  }
+);
+
+router.post("/modules/add", authenticate, upload.single("url"), (req, res) => {
+  users.findOne({ email: req.user.email }).then(async (user) => {
     if (!user || user?.role !== process.env.ADMIN_KEY) {
       res.status(403).json({
         data: {
@@ -44,39 +174,30 @@ router.post("/modules/add", authenticate, (req, res) => {
       });
     } else {
       const id = randomUUID();
-      const uploadFile = new storeModuleTemplateCopy({
-        id: id,
-        url: req.body.url,
-      });
+
       const uploadModule = new moduleTemplateCopy({
-        id: id,
+        id: req.file?.id,
         courseCode: req.body.courseCode,
         courseTitle: req.body.courseTitle,
         level: req.body.level,
         department: req.body.department,
-        // url: req.body.url,
+        thumbnail: req.body.thumbnail,
       });
 
-      uploadFile
+      uploadModule
         .save()
         .then((data) => {
-          console.log("fileUpload: ", data);
-          uploadModule
-            .save()
-            .then((data) => {
-              res.status(201).json({
-                data: {
-                  status: "success",
-                  message: "module uploaded successfully",
-                  data: data,
-                },
-              });
-            })
-            .catch((error) => {
-              res.json(error);
-            });
+          res.status(201).json({
+            data: {
+              status: "success",
+              message: "module uploaded successfully",
+              data: data,
+            },
+          });
         })
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          res.status(500).json({ message: "An unknown error occured", error });
+        });
     }
   });
 });
