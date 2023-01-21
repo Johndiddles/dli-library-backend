@@ -2,6 +2,7 @@ const { response } = require("express");
 const { randomUUID } = require("crypto");
 const express = require("express");
 const router = express.Router();
+const mongoose = require("mongoose");
 const moduleTemplateCopy = require("./models/createModule");
 const storeModuleTemplateCopy = require("./models/storeModule");
 const users = require("./models/userModule");
@@ -22,7 +23,28 @@ const jwt = require("jsonwebtoken");
 // const getThumbnail = require("./helpers/getThumbnail");
 const { PDFNet } = require("@pdftron/pdfnet-node");
 const path = require("path");
-const connectDB = require("./index");
+
+let gfs, gridfsBucket;
+
+const connectToDB = async () => {
+  const connectDB = async () => {
+    const conn = mongoose.createConnection(process.env.DATABASE_ACCESS);
+
+    conn.once("open", () => {
+      gridfsBucket = new mongoose.mongo.GridFSBucket(conn.db, {
+        bucketName: "modules",
+      });
+
+      gfs = Grid(conn.db, mongoose.mongo);
+      gfs.collection("modules");
+      console.log("db is connected...");
+    });
+  };
+
+  await connectDB();
+};
+
+connectToDB();
 
 bodyParser.json();
 
@@ -41,7 +63,7 @@ router.get("/modules", (req, res) => {
     .catch((error) => console.log(error));
 });
 
-router.get("/modules/recent", (req, res) => {
+router.get("/get-recent-modules", (req, res) => {
   moduleTemplateCopy
     .find()
     .then((response) => {
@@ -53,16 +75,6 @@ router.get("/modules/recent", (req, res) => {
             ?.sort((a, b) => Number(b?.date) - Number(a?.date))
             ?.slice(0, 3)
         );
-    })
-    .catch((error) => console.log(error));
-});
-
-//fetch single module
-router.get("/modules/:id", (req, res) => {
-  storeModuleTemplateCopy
-    .find({ id: req.params.id })
-    .then((response) => {
-      res.status(201).json(response);
     })
     .catch((error) => console.log(error));
 });
@@ -200,6 +212,39 @@ router.post("/modules/add", authenticate, upload.single("url"), (req, res) => {
         });
     }
   });
+});
+
+//fetch single module
+router.get("/modules/:id", (req, res) => {
+  console.log(req.params?.id);
+  gfs.files.findOne({ _id: req.params?.id }, (err, file) => {
+    if (!file || file.length === 0) {
+      return res
+        .status(404)
+        .json({ message: `Can't find module with id: ${req.params.id}` });
+    }
+
+    console.log({ file });
+    if (file?.contentType === "application/pdf") {
+      const readstream = gridfsBucket.openDownloadStreamByName(file?.filename);
+      readstream.pipe(res);
+    } else {
+      return res
+        .status(404)
+        .json({ message: `Can't find module with id: ${req.params.id}` });
+    }
+  });
+  //** HOPEFULLY WE WON'T NEED THIS BLOCK OF CODE AGAIN */
+  // .then((response) => {
+  //   res.status(201).json(response);
+  // })
+  // .catch((error) => console.log(error));
+  // storeModuleTemplateCopy
+  //   .find({ id: req.params.id })
+  //   .then((response) => {
+  //     res.status(201).json(response);
+  //   })
+  //   .catch((error) => console.log(error));
 });
 
 router.post("/user/create", (req, res) => {

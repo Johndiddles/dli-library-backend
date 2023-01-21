@@ -9,26 +9,28 @@ const Grid = require("gridfs-stream");
 
 dotenv.config();
 const routes = require("./routes");
-let gfs;
 
 const PORT = process.env.PORT || 5000;
 const app = express();
 
-const connectToDB = async () => {
-  const connectDB = async () => {
-    const conn = mongoose.createConnection(process.env.DATABASE_ACCESS);
+// let gfs;
 
-    conn.once("open", () => {
-      gfs = Grid(conn.db, mongoose.mongo);
-      gfs.collection("modules");
-      console.log("db is connected...");
-    });
-  };
+// const connectToDB = async () => {
+//   const connectDB = async () => {
+//     const conn = mongoose.createConnection(process.env.DATABASE_ACCESS);
 
-  await connectDB();
-};
+//     conn.once("open", () => {
+//       gfs = Grid(conn.db, mongoose.mongo);
+//       gfs.collection("modules");
 
-connectToDB();
+//       console.log("db is connected...");
+//     });
+//   };
+
+//   await connectDB();
+// };
+
+// connectToDB();
 
 mongoose.connect(process.env.DATABASE_ACCESS, () => {
   console.log("database is connected");
