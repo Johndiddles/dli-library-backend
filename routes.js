@@ -194,6 +194,7 @@ router.post("/modules/add", authenticate, upload.single("url"), (req, res) => {
         level: req.body.level,
         department: req.body.department,
         thumbnail: req.body.thumbnail,
+        likes: 0,
       });
 
       uploadModule
@@ -277,6 +278,7 @@ router.post("/user/create", (req, res) => {
           password: hashedPwd,
           role: "user",
           createdAt: new Date(),
+          favorite_modules: [],
         });
 
         user
@@ -365,7 +367,6 @@ router.post("/user/login", (req, res) => [
 
 router.post("/user/verify", authenticate, (req, res) => {
   users.findOne({ email: req.user.email }).then((user) => {
-    console.log(user.favorite_modules);
     res.status(201).json({
       message: "successfully verified user",
       user: {

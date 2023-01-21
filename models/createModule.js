@@ -29,6 +29,10 @@ const moduleTemplate = new mongoose.Schema({
     type: "Object",
     required: true,
   },
+  likes: {
+    type: Number,
+    required: true,
+  },
 });
 
 module.exports = mongoose.model("modules", moduleTemplate);
