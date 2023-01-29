@@ -63,6 +63,16 @@ router.get("/modules", (req, res) => {
     .catch((error) => console.log(error));
 });
 
+router.get("/get-single-module/:id", (req, res) => {
+  moduleTemplateCopy
+    .findOne({ id: req.params?.id })
+    .then((response) => {
+      console.log(response);
+      res.status(200).json(response);
+    })
+    .catch((error) => console.log(error));
+});
+
 router.get("/get-recent-modules", (req, res) => {
   moduleTemplateCopy
     .find()
@@ -217,7 +227,7 @@ router.post("/modules/add", authenticate, upload.single("url"), (req, res) => {
 
 //fetch single module
 router.get("/modules/:id", (req, res) => {
-  console.log(req.params?.id);
+  // console.log(req.params?.id);
   gfs.files.findOne({ _id: req.params?.id }, (err, file) => {
     if (!file || file.length === 0) {
       return res
@@ -284,15 +294,22 @@ router.post("/user/create", (req, res) => {
         user
           .save()
           .then((data) => {
+            let token = jwt.sign(
+              { email: data.email },
+              process.env.JWT_AUTH_SECRET_KEY,
+              {
+                expiresIn: 60 * 60,
+              }
+            );
             res.status(200).json({
               data: {
                 status: "success",
                 message: "user created successfully",
-                data: {
-                  first_name: data.first_name,
-                  last_name: data.last_name,
+                token,
+                user: {
+                  full_name: `${data.first_name} ${data.last_name}`,
                   email: data.email,
-                  phone: data.phone,
+                  favorite_modules: [],
                 },
               },
             });
@@ -367,7 +384,7 @@ router.post("/user/login", (req, res) => [
 
 router.post("/user/verify", authenticate, (req, res) => {
   users.findOne({ email: req.user.email }).then((user) => {
-    res.status(201).json({
+    res.status(200).json({
       message: "successfully verified user",
       user: {
         full_name: `${user.first_name} ${user.last_name}`,
@@ -376,6 +393,42 @@ router.post("/user/verify", authenticate, (req, res) => {
       },
     });
   });
+});
+
+router.post("/add-to-favorites", authenticate, async (req, res) => {
+  console.log(req.body, req.user);
+  let prevModules;
+
+  let action;
+
+  await users
+    .findOne({ email: req.user.email })
+    .then((user) => (prevModules = user?.favorite_modules))
+    .catch((error) => res.status(500).json({ message: "failed", error }));
+
+  console.log({ prevModules });
+  if (prevModules?.includes(req.body.id)) {
+    action = "removed";
+  } else {
+    action = "added";
+  }
+
+  await users
+    .findOneAndUpdate(
+      { email: req.user.email },
+      {
+        favorite_modules: prevModules?.includes(req.body.id)
+          ? prevModules.filter((module) => module !== req.body?.id)
+          : [...prevModules, req.body.id],
+      }
+    )
+    .then((user) => {
+      console.log({ user });
+      res.status(201).json({ message: action });
+    })
+    .catch((error) => {
+      res.status(500).json({ message: "failed", error });
+    });
 });
 
 module.exports = router;
