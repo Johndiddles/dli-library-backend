@@ -37,7 +37,7 @@ const connectToDB = async () => {
 
       gfs = Grid(conn.db, mongoose.mongo);
       gfs.collection("modules");
-      console.log("db is connected...");
+      // console.log("db is connected...");
     });
   };
 
@@ -52,48 +52,38 @@ router.use(methodOverride("_method"));
 
 // fetch all modules
 router.get("/modules", (req, res) => {
-  moduleTemplateCopy
-    .find()
-    .then((response) => {
-      // console.log(response);
-      res
-        .status(201)
-        .json(response?.sort((a, b) => Number(b?.date) - Number(a?.date)));
-    })
-    .catch((error) => console.log(error));
+  moduleTemplateCopy.find().then((response) => {
+    res
+      .status(201)
+      .json(response?.sort((a, b) => Number(b?.date) - Number(a?.date)));
+  });
+  // .catch((error) => console.log(error));
 });
 
 router.get("/get-single-module/:id", (req, res) => {
-  moduleTemplateCopy
-    .findOne({ id: req.params?.id })
-    .then((response) => {
-      console.log(response);
-      res.status(200).json(response);
-    })
-    .catch((error) => console.log(error));
+  moduleTemplateCopy.findOne({ id: req.params?.id }).then((response) => {
+    // console.log(response);
+    res.status(200).json(response);
+  });
+  // .catch((error) => console.log(error));
 });
 
 router.get("/get-recent-modules", (req, res) => {
-  moduleTemplateCopy
-    .find()
-    .then((response) => {
-      // console.log(response);
-      res
-        .status(201)
-        .json(
-          response
-            ?.sort((a, b) => Number(b?.date) - Number(a?.date))
-            ?.slice(0, 3)
-        );
-    })
-    .catch((error) => console.log(error));
+  moduleTemplateCopy.find().then((response) => {
+    res
+      .status(201)
+      .json(
+        response?.sort((a, b) => Number(b?.date) - Number(a?.date))?.slice(0, 3)
+      );
+  });
+  // .catch((error) => console.log(error));
 });
 
 // add a single module
 const storage = new GridFsStorage({
   url: process.env.DATABASE_ACCESS,
   file: (req, file) => {
-    console.log({ file });
+    // console.log({ file });
     return new Promise((resolve, reject) => {
       crypto.randomBytes(16, (err, buf) => {
         if (err) {
@@ -107,7 +97,7 @@ const storage = new GridFsStorage({
           bucketName: "modules",
         };
 
-        console.log({ fileInfo });
+        // console.log({ fileInfo });
         resolve(fileInfo);
       });
     });
@@ -121,7 +111,7 @@ router.post(
   authenticate,
   fileupload({ createParentPath: true }),
   (req, res) => {
-    console.log(req.files);
+    // console.log(req.files);
     users.findOne({ email: req.user.email }).then(async (user) => {
       if (!user || user?.role !== process.env.ADMIN_KEY) {
         res.status(403).json({
@@ -167,19 +157,19 @@ router.post(
                 });
 
                 fs.unlink(outputFilePath, () => {
-                  console.log("file removed successfully");
+                  // console.log("file removed successfully");
                 });
               }
             });
           })
           .catch((error) => {
-            console.log({ error });
+            // console.log({ error });
             res
               .status(500)
               .json({ message: "an error occured while generating thumbnail" });
           });
 
-        console.log({ fileThumbnail });
+        // console.log({ fileThumbnail });
       }
     });
   }
@@ -227,7 +217,6 @@ router.post("/modules/add", authenticate, upload.single("url"), (req, res) => {
 
 //fetch single module
 router.get("/modules/:id", (req, res) => {
-  // console.log(req.params?.id);
   gfs.files.findOne({ _id: req.params?.id }, (err, file) => {
     if (!file || file.length === 0) {
       return res
@@ -235,7 +224,7 @@ router.get("/modules/:id", (req, res) => {
         .json({ message: `Can't find module with id: ${req.params.id}` });
     }
 
-    console.log({ file });
+    // console.log({ file });
     if (file?.contentType === "application/pdf") {
       const readstream = gridfsBucket.openDownloadStreamByName(file?.filename);
       readstream.pipe(res);
@@ -245,17 +234,6 @@ router.get("/modules/:id", (req, res) => {
         .json({ message: `Can't find module with id: ${req.params.id}` });
     }
   });
-  //** HOPEFULLY WE WON'T NEED THIS BLOCK OF CODE AGAIN */
-  // .then((response) => {
-  //   res.status(201).json(response);
-  // })
-  // .catch((error) => console.log(error));
-  // storeModuleTemplateCopy
-  //   .find({ id: req.params.id })
-  //   .then((response) => {
-  //     res.status(201).json(response);
-  //   })
-  //   .catch((error) => console.log(error));
 });
 
 router.post("/user/create", (req, res) => {
@@ -263,17 +241,15 @@ router.post("/user/create", (req, res) => {
   const email = req.body.email;
   const phone = req.body.phone;
 
-  // console.log(users.findOne({ email: email }));
-
   users.findOne({ $or: [{ email: email }, { phone: phone }] }).then((user) => {
-    if (user?.phone === phone) {
+    if (phone && phone !== "" && user?.phone === phone) {
       res.status(400).json({ message: "phone already exist" });
     } else if (user?.email === email) {
       res.status(400).json({ message: "email already exist" });
     } else {
       bcrypt.hash(req.body.password, 10, function (err, hashedPwd) {
         if (err) {
-          console.log(err);
+          // console.log(err);
           res.status(500).json({
             message: "Unexpected error",
           });
@@ -283,7 +259,7 @@ router.post("/user/create", (req, res) => {
           id: id,
           first_name: req.body.first_name,
           last_name: req.body.last_name,
-          email: email,
+          email: email?.toLowerCase(),
           phone: phone,
           password: hashedPwd,
           role: "user",
@@ -315,7 +291,7 @@ router.post("/user/create", (req, res) => {
             });
           })
           .catch((error) => {
-            console.log("error: ", error.errors);
+            // console.log("error: ", error.errors);
             res.status(500).json({
               message: "Unexpected Error",
               error: error.errors,
@@ -396,7 +372,7 @@ router.post("/user/verify", authenticate, (req, res) => {
 });
 
 router.post("/add-to-favorites", authenticate, async (req, res) => {
-  console.log(req.body, req.user);
+  // console.log(req.body, req.user);
   let prevModules;
 
   let action;
@@ -406,7 +382,7 @@ router.post("/add-to-favorites", authenticate, async (req, res) => {
     .then((user) => (prevModules = user?.favorite_modules))
     .catch((error) => res.status(500).json({ message: "failed", error }));
 
-  console.log({ prevModules });
+  // console.log({ prevModules });
   if (prevModules?.includes(req.body.id)) {
     action = "removed";
   } else {
@@ -423,7 +399,7 @@ router.post("/add-to-favorites", authenticate, async (req, res) => {
       }
     )
     .then((user) => {
-      console.log({ user });
+      // console.log({ user });
       res.status(201).json({ message: action });
     })
     .catch((error) => {
