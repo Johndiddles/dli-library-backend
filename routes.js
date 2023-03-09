@@ -1,10 +1,8 @@
-const { response } = require("express");
 const { randomUUID } = require("crypto");
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const moduleTemplateCopy = require("./models/createModule");
-const storeModuleTemplateCopy = require("./models/storeModule");
 const users = require("./models/userModule");
 const fs = require("fs");
 const fileupload = require("express-fileupload");
@@ -20,7 +18,6 @@ const authenticate = require("./middlewares/authentication");
 
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-// const getThumbnail = require("./helpers/getThumbnail");
 const { PDFNet } = require("@pdftron/pdfnet-node");
 const path = require("path");
 
@@ -37,7 +34,6 @@ const connectToDB = async () => {
 
       gfs = Grid(conn.db, mongoose.mongo);
       gfs.collection("modules");
-      // console.log("db is connected...");
     });
   };
 
@@ -52,20 +48,24 @@ router.use(methodOverride("_method"));
 
 // fetch all modules
 router.get("/modules", (req, res) => {
-  moduleTemplateCopy.find().then((response) => {
-    res
-      .status(201)
-      .json(response?.sort((a, b) => Number(b?.date) - Number(a?.date)));
-  });
-  // .catch((error) => console.log(error));
+  moduleTemplateCopy
+    .find()
+    .then((response) => {
+      res
+        .status(201)
+        .json(response?.sort((a, b) => Number(b?.date) - Number(a?.date)));
+    })
+    .catch((error) => console.log(error));
 });
 
 router.get("/get-single-module/:id", (req, res) => {
-  moduleTemplateCopy.findOne({ id: req.params?.id }).then((response) => {
-    // console.log(response);
-    res.status(200).json(response);
-  });
-  // .catch((error) => console.log(error));
+  moduleTemplateCopy
+    .findOne({ id: req.params?.id })
+    .then((response) => {
+      // console.log(response);
+      res.status(200).json(response);
+    })
+    .catch((error) => console.log(error));
 });
 
 router.get("/get-recent-modules", (req, res) => {
