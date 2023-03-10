@@ -46,7 +46,7 @@ bodyParser.json();
 
 router.use(methodOverride("_method"));
 
-// fetch all modules
+//** fetch all modules */
 router.get("/modules", (req, res) => {
   moduleTemplateCopy
     .find()
@@ -79,7 +79,7 @@ router.get("/get-recent-modules", (req, res) => {
   // .catch((error) => console.log(error));
 });
 
-// add a single module
+//**  add a single module *//
 const storage = new GridFsStorage({
   url: process.env.DATABASE_ACCESS,
   file: (req, file) => {
@@ -330,7 +330,7 @@ router.post("/user/login", (req, res) => [
               { email: user.email },
               process.env.JWT_AUTH_SECRET_KEY,
               {
-                expiresIn: 60 * 60,
+                expiresIn: 60 * 60 * 5,
               }
             );
             res.status(201).json({
@@ -342,6 +342,7 @@ router.post("/user/login", (req, res) => [
                   full_name: `${user.first_name} ${user.last_name}`,
                   email: user.email,
                   favorite_modules: user.favorite_modules,
+                  role: user.role === process.env.ADMIN_KEY ? "admin" : "user",
                 },
               },
             });
@@ -405,6 +406,24 @@ router.post("/add-to-favorites", authenticate, async (req, res) => {
     .catch((error) => {
       res.status(500).json({ message: "failed", error });
     });
+});
+
+//** ADMIN ROUTES */
+router.get("/admin/get-all-users", authenticate, async (req, res) => {
+  users.findOne({ email: req.user.email }).then(async (user) => {
+    if (!user || user?.role !== process.env.ADMIN_KEY) {
+      res.status(403).json({
+        data: {
+          status: "failed",
+          message: "access denied",
+        },
+      });
+    } else {
+      users.find().then((response) => {
+        res.status(200).json(response);
+      });
+    }
+  });
 });
 
 module.exports = router;
