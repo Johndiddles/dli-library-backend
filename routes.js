@@ -52,7 +52,7 @@ router.get("/modules", (req, res) => {
     .find()
     .then((response) => {
       res
-        .status(201)
+        .status(200)
         .json(response?.sort((a, b) => Number(b?.date) - Number(a?.date)));
     })
     .catch((error) => console.log(error));
