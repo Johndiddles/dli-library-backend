@@ -426,4 +426,10 @@ router.get("/admin/get-all-users", authenticate, async (req, res) => {
   });
 });
 
+//** CRON */
+router.get("/cron", async (req, res) => {
+  console.log("cron ran successfully");
+  res.status(200).json({ message: "successfully pinged" });
+});
+
 module.exports = router;
