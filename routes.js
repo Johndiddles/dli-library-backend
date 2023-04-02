@@ -4,6 +4,7 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const moduleTemplateCopy = require("./models/createModule");
 const users = require("./models/userModule");
+const support = require("./models/contactModule");
 const fs = require("fs");
 const fileupload = require("express-fileupload");
 const crypto = require("crypto");
@@ -408,6 +409,37 @@ router.post("/add-to-favorites", authenticate, async (req, res) => {
     });
 });
 
+//** CONTACT \ SUPPORT FORM **//
+router.post("/create-contact-message", (req, res) => {
+  const id = randomUUID();
+  const { contact_info, full_name, message } = req.body;
+
+  const new_message = new support({
+    id: id,
+    full_name,
+    contact_info,
+    message,
+  });
+
+  new_message
+    .save()
+    .then((data) => {
+      res.status(201).json({
+        data: {
+          status: "success",
+          message: "message sent successfully",
+        },
+      });
+    })
+    .catch((error) => {
+      // console.log("error: ", error.errors);
+      res.status(500).json({
+        message: "Unexpected Error",
+        error: error.errors,
+      });
+    });
+});
+
 //** ADMIN ROUTES */
 router.get("/admin/get-all-users", authenticate, async (req, res) => {
   users.findOne({ email: req.user.email }).then(async (user) => {
@@ -425,6 +457,24 @@ router.get("/admin/get-all-users", authenticate, async (req, res) => {
     }
   });
 });
+router.get("/admin/get-contact-messages", authenticate, async (req, res) => {
+  users.findOne({ email: req.user.email }).then(async (user) => {
+    if (!user || user?.role !== process.env.ADMIN_KEY) {
+      res.status(403).json({
+        data: {
+          status: "failed",
+          message: "access denied",
+        },
+      });
+    } else {
+      support.find().then((response) => {
+        res.status(200).json(response);
+      });
+    }
+  });
+});
+
+//** END - ADMIN ROUTES */
 
 //** CRON */
 router.get("/cron", async (req, res) => {
