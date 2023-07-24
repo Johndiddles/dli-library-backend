@@ -4,6 +4,7 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const moduleTemplateCopy = require("./models/createModule");
 const users = require("./models/userModule");
+const department = require("./models/departmentModule");
 const support = require("./models/contactModule");
 const fs = require("fs");
 const fileupload = require("express-fileupload");
@@ -21,6 +22,10 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { PDFNet } = require("@pdftron/pdfnet-node");
 const path = require("path");
+const getAllModules = require("./controllers/getAllModules");
+const getModuleById = require("./controllers/getModuleById");
+const getAllDepartments = require("./controllers/getAllDepartments");
+const getRecentModules = require("./controllers/getRecentModules");
 
 let gfs, gridfsBucket;
 
@@ -48,37 +53,13 @@ bodyParser.json();
 router.use(methodOverride("_method"));
 
 //** fetch all modules */
-router.get("/modules", (req, res) => {
-  moduleTemplateCopy
-    .find()
-    .then((response) => {
-      res
-        .status(200)
-        .json(response?.sort((a, b) => Number(b?.date) - Number(a?.date)));
-    })
-    .catch((error) => console.log(error));
-});
+router.get("/modules", getAllModules);
 
-router.get("/get-single-module/:id", (req, res) => {
-  moduleTemplateCopy
-    .findOne({ id: req.params?.id })
-    .then((response) => {
-      // console.log(response);
-      res.status(200).json(response);
-    })
-    .catch((error) => console.log(error));
-});
+router.get("/departments", getAllDepartments);
 
-router.get("/get-recent-modules", (req, res) => {
-  moduleTemplateCopy.find().then((response) => {
-    res
-      .status(201)
-      .json(
-        response?.sort((a, b) => Number(b?.date) - Number(a?.date))?.slice(0, 3)
-      );
-  });
-  // .catch((error) => console.log(error));
-});
+router.get("/get-single-module/:id", getModuleById);
+
+router.get("/get-recent-modules", getRecentModules);
 
 //**  add a single module *//
 const storage = new GridFsStorage({
@@ -474,6 +455,51 @@ router.get("/admin/get-contact-messages", authenticate, async (req, res) => {
   });
 });
 
+router.post("/admin/add-department", authenticate, async (req, res) => {
+  const { title, value } = req.body;
+  if (title?.trim() === "" || value?.trim() === "") {
+    return res.status(400)?.json({
+      data: {
+        status: "failed",
+        message: "Invalid details",
+      },
+    });
+  }
+  department.findOne({ value }).then(async (dept) => {
+    if (!dept) {
+      const new_department = new department({
+        title,
+        value,
+      });
+
+      new_department
+        .save()
+        .then((data) => {
+          res.status(201).json({
+            data: {
+              status: "success",
+              message: "Department created successfully",
+            },
+          });
+        })
+        .catch((error) => {
+          console.log({ error });
+          res.status(500).json({
+            message: "Unexpected Error",
+            error: error.errors,
+          });
+        });
+    } else {
+      res.status(409).json({
+        data: {
+          status: "failed",
+          message: "Department already exist",
+        },
+      });
+    }
+  });
+});
+
 //** END - ADMIN ROUTES */
 
 //** CRON */
@@ -482,4 +508,4 @@ router.get("/cron", async (req, res) => {
   res.status(200).json({ message: "successfully pinged" });
 });
 
-module.exports = router;
+(module.exports = router), { gfs, gridfsBucket };
