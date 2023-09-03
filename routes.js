@@ -23,9 +23,10 @@ const jwt = require("jsonwebtoken");
 const { PDFNet } = require("@pdftron/pdfnet-node");
 const path = require("path");
 const getAllModules = require("./controllers/getAllModules");
-const getModuleById = require("./controllers/getModuleById");
+const getModuleFileById = require("./controllers/getModuleFileById");
 const getAllDepartments = require("./controllers/getAllDepartments");
 const getRecentModules = require("./controllers/getRecentModules");
+const getSingleModuleById = require("./controllers/getSingleModuleById");
 
 let gfs, gridfsBucket;
 
@@ -57,7 +58,8 @@ router.get("/modules", getAllModules);
 
 router.get("/departments", getAllDepartments);
 
-router.get("/get-single-module/:id", getModuleById);
+// get module data
+router.get("/get-single-module/:id", getSingleModuleById);
 
 router.get("/get-recent-modules", getRecentModules);
 
@@ -197,26 +199,30 @@ router.post("/modules/add", authenticate, upload.single("url"), (req, res) => {
   });
 });
 
-//fetch single module
-router.get("/modules/:id", (req, res) => {
-  gfs.files.findOne({ _id: req.params?.id }, (err, file) => {
-    if (!file || file.length === 0) {
-      return res
-        .status(404)
-        .json({ message: `Can't find module with id: ${req.params.id}` });
-    }
+//fetch single module in pdf
+router.get(
+  "/modules/:id",
+  (req, res) => getModuleFileById(req, res, gfs, gridfsBucket)
+  // {
+  //   gfs.files.findOne({ _id: req.params?.id }, (err, file) => {
+  //     if (!file || file.length === 0) {
+  //       return res
+  //         .status(404)
+  //         .json({ message: `Can't find module with id: ${req.params.id}` });
+  //     }
 
-    // console.log({ file });
-    if (file?.contentType === "application/pdf") {
-      const readstream = gridfsBucket.openDownloadStreamByName(file?.filename);
-      readstream.pipe(res);
-    } else {
-      return res
-        .status(404)
-        .json({ message: `Can't find module with id: ${req.params.id}` });
-    }
-  });
-});
+  //     // console.log({ file });
+  //     if (file?.contentType === "application/pdf") {
+  //       const readstream = gridfsBucket.openDownloadStreamByName(file?.filename);
+  //       readstream.pipe(res);
+  //     } else {
+  //       return res
+  //         .status(404)
+  //         .json({ message: `Can't find module with id: ${req.params.id}` });
+  //     }
+  //   });
+  // }
+);
 
 router.post("/user/create", (req, res) => {
   const id = randomUUID();
@@ -508,4 +514,4 @@ router.get("/cron", async (req, res) => {
   res.status(200).json({ message: "successfully pinged" });
 });
 
-(module.exports = router), { gfs, gridfsBucket };
+module.exports = { router, gfs, gridfsBucket };

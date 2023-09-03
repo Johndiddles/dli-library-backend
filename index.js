@@ -8,7 +8,7 @@ const { PDFNet } = require("@pdftron/pdfnet-node");
 const Grid = require("gridfs-stream");
 
 dotenv.config();
-const routes = require("./routes");
+const { router } = require("./routes");
 
 const PORT = process.env.PORT || 5000;
 const app = express();
@@ -31,6 +31,8 @@ const app = express();
 // };
 
 // connectToDB();
+
+const routes = router;
 
 mongoose.connect(process.env.DATABASE_ACCESS, () => {
   console.log("database is connected");
