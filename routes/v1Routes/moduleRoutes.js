@@ -12,6 +12,8 @@ const { GridFsStorage } = require("multer-gridfs-storage");
 const multer = require("multer");
 const { default: mongoose } = require("mongoose");
 const Grid = require("gridfs-stream");
+const updateModule = require("../../controllers/updateModule");
+const getFavouriteModules = require("../../controllers/getFavouriteModules");
 
 require("dotenv").config();
 
@@ -41,6 +43,7 @@ connectToDB();
 moduleRoutes.get("/", getAllModules);
 moduleRoutes.get("/get-single-module/:id", getSingleModuleById);
 moduleRoutes.get("/recent", getRecentModules);
+moduleRoutes.get("/favourites", authenticate, getFavouriteModules);
 moduleRoutes.get("/:id", (req, res) =>
   getModuleFileById(req, res, gfs, gridfsBucket)
 );
@@ -78,5 +81,6 @@ moduleRoutes.post(
   createModuleThumbnail
 );
 moduleRoutes.post("/add", authenticate, upload.single("url"), addModule);
+moduleRoutes.patch("/update/:id", authenticate, updateModule);
 
 module.exports = { moduleRoutes, gfs, gridfsBucket };

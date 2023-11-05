@@ -8,6 +8,7 @@ const verifyUser = async (req, res) => {
         full_name: `${user.first_name} ${user.last_name}`,
         email: user.email,
         favorite_modules: user.favorite_modules,
+        role: user.role === process.env.ADMIN_KEY ? "admin" : "user",
       },
     });
   });
