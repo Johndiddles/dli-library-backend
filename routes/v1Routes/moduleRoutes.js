@@ -14,6 +14,7 @@ const { default: mongoose } = require("mongoose");
 const Grid = require("gridfs-stream");
 const updateModule = require("../../controllers/updateModule");
 const getFavouriteModules = require("../../controllers/getFavouriteModules");
+const isAdmin = require("../../middlewares/isAdmin");
 
 require("dotenv").config();
 
@@ -80,7 +81,13 @@ moduleRoutes.post(
   fileUpload({ createParentPath: true }),
   createModuleThumbnail
 );
-moduleRoutes.post("/add", authenticate, upload.single("url"), addModule);
-moduleRoutes.patch("/update/:id", authenticate, updateModule);
+moduleRoutes.post(
+  "/add",
+  authenticate,
+  isAdmin,
+  upload.single("url"),
+  addModule
+);
+moduleRoutes.patch("/update/:id", authenticate, isAdmin, updateModule);
 
 module.exports = { moduleRoutes, gfs, gridfsBucket };
