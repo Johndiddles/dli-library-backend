@@ -1,6 +1,8 @@
 const http = require("http");
 const dotenv = require("dotenv");
 const app = require("./app");
+const os = require("os");
+const cluster = require("cluster");
 const { PDFNet } = require("@pdftron/pdfnet-node");
 
 dotenv.config();
@@ -17,9 +19,16 @@ const server = http.createServer(app);
 async function startServer() {
   await mongoConnect();
 
-  server.listen(PORT, () => {
-    console.log("server started...");
-  });
+  if (cluster.isMaster) {
+    const numOfCores = os.cpus().length;
+    for (let i = 0; i < numOfCores; i++) {
+      cluster.fork();
+    }
+  } else {
+    server.listen(PORT, () => {
+      console.log("server started...");
+    });
+  }
 }
 
 startServer();
