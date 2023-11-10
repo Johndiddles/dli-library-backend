@@ -5,7 +5,7 @@ const verifyUser = async (req, res) => {
     res.status(200).json({
       message: "successfully verified user",
       user: {
-        full_name: `${user.first_name} ${user.last_name}`,
+        name: user.name,
         email: user.email,
         favorite_modules: user.favorite_modules,
         role: user.role === process.env.ADMIN_KEY ? "admin" : "user",

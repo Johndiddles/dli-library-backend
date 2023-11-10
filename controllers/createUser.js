@@ -49,7 +49,7 @@ const createUserController = async (req, res) => {
                 message: "user created successfully",
                 token,
                 user: {
-                  full_name: `${data.first_name} ${data.last_name}`,
+                  name: data.name,
                   email: data.email,
                   favorite_modules: [],
                 },
