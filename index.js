@@ -20,7 +20,7 @@ async function startServer() {
   await mongoConnect();
 
   if (cluster.isMaster) {
-    const numOfCores = os.cpus().length;
+    const numOfCores = 3;
     for (let i = 0; i < numOfCores; i++) {
       cluster.fork();
     }
