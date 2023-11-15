@@ -6,20 +6,19 @@ const fileUpload = require("express-fileupload");
 const multer = require("multer");
 const Grid = require("gridfs-stream");
 const isAdmin = require("../../middlewares/isAdmin");
-const getAllModules = require("../../controllers/getAllModules");
-const getSingleModuleById = require("../../controllers/getSingleModuleById");
-const getRecentModules = require("../../controllers/getRecentModules");
-const getModuleFileById = require("../../controllers/getModuleFileById");
-const addModule = require("../../controllers/addModule");
+const addPastQuestion = require("../../controllers/addPastQuestion");
 const authenticate = require("../../middlewares/authentication");
 const createThumbnail = require("../../controllers/createThumbnail");
-const updateModule = require("../../controllers/updateModule");
-const getFavouriteModules = require("../../controllers/getFavouriteModules");
+const getAllPastQuestions = require("../../controllers/getAllPastQuestions");
 const path = require("path");
+const getPastQuestionFileById = require("../../controllers/getPastQuestionFileById");
+const getSinglePastQuestionById = require("../../controllers/getSinglePastQuestionById");
+const getPastQuestionsByCourseId = require("../../controllers/getPastQuestionsByCourseId");
+const updatePastQuestion = require("../../controllers/updatePastQuestion");
 
 require("dotenv").config();
 
-const moduleRoutes = express.Router();
+const pastQuestionRoutes = express.Router();
 
 let gfs, gridfsBucket;
 
@@ -29,11 +28,11 @@ const connectToDB = async () => {
 
     conn.once("open", () => {
       gridfsBucket = new mongoose.mongo.GridFSBucket(conn.db, {
-        bucketName: "modules",
+        bucketName: "pastQuestions",
       });
 
       gfs = Grid(conn.db, mongoose.mongo);
-      gfs.collection("modules");
+      gfs.collection("pastQuestions");
     });
   };
 
@@ -42,15 +41,20 @@ const connectToDB = async () => {
 
 connectToDB();
 
-moduleRoutes.get("/", getAllModules);
-moduleRoutes.get("/get-single-module/:id", getSingleModuleById);
-moduleRoutes.get("/recent", getRecentModules);
-moduleRoutes.get("/favourites", authenticate, getFavouriteModules);
-moduleRoutes.get("/:id", (req, res) =>
-  getModuleFileById(req, res, gfs, gridfsBucket)
+pastQuestionRoutes.get("/", getAllPastQuestions);
+pastQuestionRoutes.get(
+  "/get-past-questions-by-course-id/:courseId",
+  getPastQuestionsByCourseId
+);
+pastQuestionRoutes.get("/:id", (req, res) =>
+  getPastQuestionFileById(req, res, gfs, gridfsBucket)
+);
+pastQuestionRoutes.get(
+  "/get-single-past-question/:id",
+  getSinglePastQuestionById
 );
 
-//**  add a single module *//
+//**  add a single past question *//
 const storage = new GridFsStorage({
   url: process.env.DATABASE_ACCESS,
   file: (req, file) => {
@@ -61,11 +65,11 @@ const storage = new GridFsStorage({
           return reject(err);
         }
         const id = buf.toString("hex");
-        const filename = `module-${id}${path.extname(file.originalname)}`;
+        const filename = `pq-${id}${path.extname(file.originalname)}`;
         const fileInfo = {
           id,
           filename: filename,
-          bucketName: "modules",
+          bucketName: "pastQuestions",
         };
 
         // console.log({ fileInfo });
@@ -74,21 +78,27 @@ const storage = new GridFsStorage({
     });
   },
 });
+
 //initialize upload with multer
 const upload = multer({ storage });
-moduleRoutes.post(
+pastQuestionRoutes.post(
   "/createThumbnail",
   authenticate,
+  isAdmin,
   fileUpload({ createParentPath: true }),
   createThumbnail
 );
-moduleRoutes.post(
+pastQuestionRoutes.post(
   "/add",
   authenticate,
-  isAdmin,
   upload.single("url"),
-  addModule
+  addPastQuestion
 );
-moduleRoutes.patch("/update/:id", authenticate, isAdmin, updateModule);
+pastQuestionRoutes.patch(
+  "/update/:id",
+  authenticate,
+  isAdmin,
+  updatePastQuestion
+);
 
-module.exports = { moduleRoutes, gfs, gridfsBucket };
+module.exports = { pastQuestionRoutes, gfs, gridfsBucket };

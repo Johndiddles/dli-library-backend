@@ -2,7 +2,7 @@ const users = require("../models/userModule");
 const moduleTemplateCopy = require("../models/createModule");
 
 async function updateModule(req, res) {
-  console.log(req.user);
+  // console.log(req.user);
   const { id } = req.params;
   const moduleUpdates = req.body;
   //   users.findOne({ email: req.user.email }).then(async (user) => {

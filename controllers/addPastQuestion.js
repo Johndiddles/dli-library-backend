@@ -1,26 +1,26 @@
 // const users = require("../models/userModule");
-const moduleTemplateCopy = require("../models/createModule");
+const pastQuestion = require("../models/pastQuestions");
 
-const addModule = async (req, res) => {
-  //   const id = randomUUID();
-
-  const newModule = new moduleTemplateCopy({
+const addPastQuestion = async (req, res) => {
+  const newPastQuestion = new pastQuestion({
     id: req.file?.id,
+    courseId: req.body.courseId,
     courseCode: req.body.courseCode,
     courseTitle: req.body.courseTitle,
+    departments: req.body.departments,
     level: req.body.level,
-    department: req.body.department,
+    session: req.body.session,
     thumbnail: req.body.thumbnail,
     likes: 0,
   });
 
-  newModule
+  newPastQuestion
     .save()
     .then((data) => {
       res.status(201).json({
         data: {
           status: "success",
-          message: "module uploaded successfully",
+          message: "past question uploaded successfully",
           data: data,
         },
       });
@@ -30,4 +30,4 @@ const addModule = async (req, res) => {
     });
 };
 
-module.exports = addModule;
+module.exports = addPastQuestion;
