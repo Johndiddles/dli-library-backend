@@ -902,3 +902,67 @@ Error: bind EADDRINUSE null:1337
     at process.emit (node:events:526:35)
     at emit (node:internal/child_process:937:14)
     at process.processTicksAndRejections (node:internal/process/task_queues:83:21)
+server started...
+server started...
+server started...
+server started...
+server started...
+server started...
+server started...
+server started...
+MongoDB connection is ready!
+database is connected
+MongoDB connection is ready!
+database is connected
+MongoDB connection is ready!
+database is connected
+MongoDB connection is ready!
+database is connected
+MongoDB connection is ready!
+database is connected
+MongoDB connection is ready!
+database is connected
+MongoDB connection is ready!
+database is connected
+MongoDB connection is ready!
+database is connected
+we are here
+/createThumbnail
+{
+  error: Error: Cannot find module './addon'
+  Require stack:
+  - C:\Users\Johndiddles\Desktop\Projects\Nodejs\dli-library-backend\node_modules\@pdftron\pdfnet-node\lib\pdfnet.js
+  - C:\Users\Johndiddles\Desktop\Projects\Nodejs\dli-library-backend\controllers\createThumbnail.js
+  - C:\Users\Johndiddles\Desktop\Projects\Nodejs\dli-library-backend\routes\v1Routes\moduleRoutes.js
+  - C:\Users\Johndiddles\Desktop\Projects\Nodejs\dli-library-backend\routes.js
+  - C:\Users\Johndiddles\Desktop\Projects\Nodejs\dli-library-backend\app.js
+  - C:\Users\Johndiddles\Desktop\Projects\Nodejs\dli-library-backend\index.js
+      at Module._resolveFilename (node:internal/modules/cjs/loader:1077:15)
+      at Hook._require.Module.require (C:\Users\Johndiddles\Desktop\Projects\Nodejs\dli-library-backend\node_modules\require-in-the-middle\index.js:81:25)
+      at require (node:internal/modules/cjs/helpers:110:18)
+      at Object.loadWorker (C:\Users\Johndiddles\Desktop\Projects\Nodejs\dli-library-backend\node_modules\@pdftron\pdfnet-node\lib\pdfnet.js:40:357)
+      at C:\Users\Johndiddles\Desktop\Projects\Nodejs\dli-library-backend\node_modules\@pdftron\pdfnet-node\lib\pdfnet.js:1165:363
+      at new Promise (<anonymous>)
+      at t.preloadWorker (C:\Users\Johndiddles\Desktop\Projects\Nodejs\dli-library-backend\node_modules\@pdftron\pdfnet-node\lib\pdfnet.js:1163:233)
+      at t.preloadPDFWorker (C:\Users\Johndiddles\Desktop\Projects\Nodejs\dli-library-backend\node_modules\@pdftron\pdfnet-node\lib\pdfnet.js:1163:157)
+      at C:\Users\Johndiddles\Desktop\Projects\Nodejs\dli-library-backend\node_modules\@pdftron\pdfnet-node\lib\pdfnet.js:1145:179
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+    code: 'MODULE_NOT_FOUND',
+    requireStack: [
+      'C:\\Users\\Johndiddles\\Desktop\\Projects\\Nodejs\\dli-library-backend\\node_modules\\@pdftron\\pdfnet-node\\lib\\pdfnet.js',
+      'C:\\Users\\Johndiddles\\Desktop\\Projects\\Nodejs\\dli-library-backend\\controllers\\createThumbnail.js',
+      'C:\\Users\\Johndiddles\\Desktop\\Projects\\Nodejs\\dli-library-backend\\routes\\v1Routes\\moduleRoutes.js',
+      'C:\\Users\\Johndiddles\\Desktop\\Projects\\Nodejs\\dli-library-backend\\routes.js',
+      'C:\\Users\\Johndiddles\\Desktop\\Projects\\Nodejs\\dli-library-backend\\app.js',
+      'C:\\Users\\Johndiddles\\Desktop\\Projects\\Nodejs\\dli-library-backend\\index.js'
+    ]
+  }
+}
+server started...
+server started...
+server started...
+server started...
+server started...
+server started...
+server started...
+server started...

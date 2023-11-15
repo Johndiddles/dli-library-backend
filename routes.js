@@ -6,10 +6,12 @@ const createContactMessage = require("./controllers/createContactMessage");
 const wakeServerCron = require("./controllers/wakeServerCron");
 const userRoutes = require("./routes/v1Routes/userRoutes");
 const adminRoutes = require("./routes/v1Routes/adminRoutes");
+const { pastQuestionRoutes } = require("./routes/v1Routes/pastQuestionRoutes");
 const { moduleRoutes } = require("./routes/v1Routes/moduleRoutes");
 
 router.use(methodOverride("_method"));
 
+router.use("/past-questions", pastQuestionRoutes);
 router.use("/modules", moduleRoutes);
 router.use("/user", userRoutes);
 router.use("/admin", adminRoutes);

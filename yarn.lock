@@ -763,10 +763,10 @@
     semver "^7.3.5"
     tar "^6.1.11"
 
-"@mapbox/node-pre-gyp@^1.0.3":
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/@mapbox/node-pre-gyp/-/node-pre-gyp-1.0.10.tgz#8e6735ccebbb1581e5a7e652244cadc8a844d03c"
-  integrity sha512-4ySo4CjzStuprMwk35H5pPbkymjv1SF3jGLj6rAHp/xT/RF7TL7bd9CTm1xDY49K2qF7jmR/g7k+SkLETP6opA==
+"@mapbox/node-pre-gyp@^1.0.10":
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/@mapbox/node-pre-gyp/-/node-pre-gyp-1.0.11.tgz#417db42b7f5323d79e93b34a6d7a2a12c0df43fa"
+  integrity sha512-Yhlar6v9WQgUp/He7BdgzOz8lqMQ8sU+jkCq7Wx8Myc5YFJLbEe7lgui/V7G1qB1DJykHSGwreceSaD60Y0PUQ==
   dependencies:
     detect-libc "^2.0.0"
     https-proxy-agent "^5.0.0"
@@ -808,12 +808,12 @@
     "@opencensus/core" "^0.0.8"
     uuid "^3.2.1"
 
-"@pdftron/pdfnet-node@^9.4.2":
-  version "9.4.2"
-  resolved "https://registry.yarnpkg.com/@pdftron/pdfnet-node/-/pdfnet-node-9.4.2.tgz#b204dca1218a4c7bf29787161902b5776b418b99"
-  integrity sha512-DP5/8Q7IW6fNjzM3YzQc0tt8a1/PqzwtZeUflyIK1fdWiqaeRYF1z0k+w90DTnd8HE+ut8e0lBFkon09FmBGtA==
+"@pdftron/pdfnet-node@^10.5.0":
+  version "10.5.0"
+  resolved "https://registry.yarnpkg.com/@pdftron/pdfnet-node/-/pdfnet-node-10.5.0.tgz#125c2dec7ac97038f2af876c92a8b421d55c5273"
+  integrity sha512-rnmq7fJ8CtXMcv6hBwoP8Ji9BHxcmJrKEW2VAY9WCk/504fWWrxTRcyIZzLGTWPsBI5ry2FzPSp/iz5DUqHWlw==
   dependencies:
-    "@mapbox/node-pre-gyp" "^1.0.3"
+    "@mapbox/node-pre-gyp" "^1.0.10"
 
 "@pm2/agent@~2.0.0":
   version "2.0.3"
@@ -3572,6 +3572,11 @@ undefsafe@^2.0.5:
   resolved "https://registry.yarnpkg.com/undefsafe/-/undefsafe-2.0.5.tgz#38733b9327bdcd226db889fb723a6efd162e6e2c"
   integrity sha512-WxONCrssBM8TSPRqN5EmsjVrsv4A8X12J4ArBiiayv3DyyG3ZlIg6yysuuSYdZsVz3TKcTg2fd//Ujd4CHV1iA==
 
+underscore@*:
+  version "1.13.6"
+  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.13.6.tgz#04786a1f589dc6c09f761fc5f45b89e935136441"
+  integrity sha512-+A5Sja4HP1M08MaXya7p5LvjuM7K6q/2EaC0+iovj/wOcMsTzMvDFbasi/oSapiwOlt252IqsKqPjCl7huKS0A==
+
 unique-string@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/unique-string/-/unique-string-2.0.0.tgz#39c6451f81afb2749de2b233e3f7c5e8843bd89d"
@@ -3734,6 +3739,11 @@ xdg-basedir@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/xdg-basedir/-/xdg-basedir-4.0.0.tgz#4bc8d9984403696225ef83a1573cbbcb4e79db13"
   integrity sha512-PSNhEJDejZYV7h50BohL09Er9VaIefr2LMAf3OEmpCkjOi34eYyQYAXUTjEQtZJTKcF0E2UKTh+osDLsgNim9Q==
+
+xhr2@*:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/xhr2/-/xhr2-0.2.1.tgz#4e73adc4f9cfec9cbd2157f73efdce3a5f108a93"
+  integrity sha512-sID0rrVCqkVNUn8t6xuv9+6FViXjUVXq8H5rWOH2rz9fDNQEd4g0EA2XlcEdJXRz5BMEn4O1pJFdT+z4YHhoWw==
 
 xtend@^4.0.0:
   version "4.0.2"

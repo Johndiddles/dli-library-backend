@@ -3,7 +3,7 @@ const path = require("path");
 const fs = require("fs");
 const { PDFNet } = require("@pdftron/pdfnet-node");
 
-const createModuleThumbnail = (req, res) => {
+const createThumbnail = (req, res) => {
   users.findOne({ email: req.user.email }).then(async (user) => {
     if (!user || user?.role !== process.env.ADMIN_KEY) {
       res.status(403).json({
@@ -13,7 +13,7 @@ const createModuleThumbnail = (req, res) => {
         },
       });
     } else {
-      let inputFile = req.files?.module?.data;
+      let inputFile = req.files?.module?.data || req.files?.pastQuestion?.data;
 
       let outputFilePath = path.resolve(
         __dirname,
@@ -60,4 +60,4 @@ const createModuleThumbnail = (req, res) => {
   });
 };
 
-module.exports = createModuleThumbnail;
+module.exports = createThumbnail;
