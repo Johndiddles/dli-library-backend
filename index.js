@@ -16,9 +16,7 @@ PDFNet.initialize(
 );
 const server = http.createServer(app);
 
-async function startServer() {
-  await mongoConnect();
-
+function runClusters() {
   if (cluster.isMaster) {
     const numOfCores = 3;
     for (let i = 0; i < numOfCores; i++) {
@@ -29,6 +27,18 @@ async function startServer() {
       console.log("server started...");
     });
   }
+}
+
+function runSingleServer() {
+  server.listen(PORT, () => {
+    console.log("server started...");
+  });
+}
+
+async function startServer() {
+  await mongoConnect();
+
+  process.env.NODE_ENV === "development" ? runClusters() : runSingleServer();
 }
 
 startServer();
