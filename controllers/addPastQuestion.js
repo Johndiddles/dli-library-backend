@@ -2,6 +2,17 @@
 const pastQuestion = require("../models/pastQuestions");
 
 const addPastQuestion = async (req, res) => {
+  const duplicate = await pastQuestion.findOne({
+    courseId: req.body.courseId,
+    session: req.body.session,
+  });
+  if (duplicate) {
+    return res.status(400).json({
+      status: "failed",
+      message: "past question already exist",
+    });
+  }
+
   const newPastQuestion = new pastQuestion({
     id: req.file?.id,
     courseId: req.body.courseId,
