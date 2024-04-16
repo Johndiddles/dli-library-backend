@@ -1,5 +1,8 @@
 const { randomUUID } = require("crypto");
 const support = require("../models/contactModule");
+const { newMail } = require("../services/mailtrap");
+
+require("dotenv").config();
 
 const createContactMessage = async (req, res) => {
   const id = randomUUID();
@@ -11,6 +14,19 @@ const createContactMessage = async (req, res) => {
     contact_info,
     message,
   });
+
+  try {
+    const mail = await newMail({
+      name: full_name,
+      message,
+      email: contact_info,
+      recipients: [{ email: process.env.MAIL_RECIPIENT }],
+    });
+
+    console.log({ mail });
+  } catch (error) {
+    console.log({ error });
+  }
 
   new_message
     .save()
